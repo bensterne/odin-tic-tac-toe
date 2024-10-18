@@ -34,21 +34,6 @@ const GameController = (function(){
         }
     }
 
-    function startGame(){
-        console.log("Welcome to Tic Tac Toe");
-        console.log("You know how to play. The board begins empty.");
-        console.log(Gameboard.getBoard());
-        console.log("One of you will be Player 1 and one of you will be Player 2. Player 1 will go first. What's your name, Player 1?");
-        let pNameInput = prompt("Player 1, please enter your name:");
-        if (pNameInput === null) {pNameInput = getOrSetPlayer(1,"get").name};
-        getOrSetPlayer(1,"set",{name: pNameInput});
-        console.log(`Welcome ${getOrSetPlayer(1,"get").name}!`);
-        console.log("What's your name, Player 2?");
-        pNameInput = prompt("Player 2, please enter your name:");
-        if (pNameInput === null) {pNameInput = getOrSetPlayer(2,"get").name};
-        getOrSetPlayer(2,"set",{name: pNameInput});
-        console.log(`Welcome ${getOrSetPlayer(2,"get").name}!`);
-    }
 
     function getActivePlayer(){
         if (player1.activePlayer){
@@ -70,7 +55,6 @@ const GameController = (function(){
         } else {
             console.log("This cell is already occupied");
         }
-        //I need to do something to re-render the game later maybe.
     }
 
     function getIfWon(){
@@ -81,7 +65,6 @@ const GameController = (function(){
         ifWon = boo;
     }
 
-    //need to check for winner every turn.
     function ifWinner(p1,p2) {
         let winner;
         const xWin = "X,X,X";
@@ -133,12 +116,35 @@ const GameController = (function(){
         changeActivePlayer();
     }
 
-    startGame();
     return {getIfWon,getOrSetPlayer,ifWinner,playRound};
 })();
 
 
 
-while (GameController.getIfWon() === false) {
-    GameController.playRound();
-}
+// while (GameController.getIfWon() === false) {
+//     GameController.playRound();
+// }
+
+
+const popUp = document.getElementById('overlay');
+const submitButton = document.getElementById('form-submit');
+submitButton.addEventListener("click", function(event) {
+        event.preventDefault();
+        const p1Name = document.getElementById('player1-name').value;
+        const p2Name = document.getElementById('player2-name').value;
+
+       if (p1Name) { // Validate that the fields are not empty
+        GameController.getOrSetPlayer(1,"set",{name: p1Name});
+        document.getElementById('p1-nametag').textContent = GameController.getOrSetPlayer(1,"get").name;
+
+    }
+
+    if (p2Name) { // Validate that the fields are not empty
+        GameController.getOrSetPlayer(2,"set",{name: p2Name});
+        document.getElementById('p2-nametag').textContent = GameController.getOrSetPlayer(1,"get").name;
+    } 
+    popUp.style.display = "none";
+    }
+    
+ 
+)
