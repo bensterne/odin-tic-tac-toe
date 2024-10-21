@@ -1,13 +1,17 @@
 
 const Gameboard = (function(){
-    const board = [['','',''],['','',''],['','','']];
+    let board;
+    function setBoard(){
+        board = [['','',''],['','',''],['','','']];
+    }
 
     function getBoard() {
         return board;
     }
 
 
-    return {getBoard};
+    setBoard();
+    return {setBoard,getBoard};
     }
 )();
 
@@ -49,11 +53,15 @@ const GameController = (function(){
         player2.activePlayer = !player2.activePlayer;
     }
 
+    let goToNextTurn = true;
+
     function addToken(row, column, player){
         if (Gameboard.getBoard()[row][column] === ''){
             Gameboard.getBoard()[row][column] = player.token;
+            goToNextTurn = true;
         } else {
-            console.log("This cell is already occupied");
+            alert("This cell is already occupied");
+            goToNextTurn = false;
         }
     }
 
@@ -86,7 +94,7 @@ const GameController = (function(){
             diag2.toString() === xWin){
                 winner =  p1.name;
                 setIfWon(true);
-                console.log(`You have won, ${winner}!`);
+                document.getElementById('whose-turn-id').textContent=`You have won, ${winner}!`;
         } else if (board[0].toString() === oWin || 
             board[1].toString() === oWin || 
             board[2].toString() === oWin || 
@@ -97,7 +105,7 @@ const GameController = (function(){
             diag2.toString() === oWin){
                 winner =  p2.name;
                 setIfWon(true);
-                console.log(`You have won, ${winner}!`);
+                document.getElementById('whose-turn-id').textContent=`You have won, ${winner}!`;
             }
         }
     
@@ -146,7 +154,7 @@ const GameController = (function(){
         document.getElementById('three').textContent = Gameboard.getBoard()[0][2];
       }
       if (Gameboard.getBoard()[1][0] !== ""){
-        document.getElementById('four').textContent = Gameboard.getBoard()[0][1];
+        document.getElementById('four').textContent = Gameboard.getBoard()[1][0];
       }
       if (Gameboard.getBoard()[1][1] !== ""){
         document.getElementById('five').textContent = Gameboard.getBoard()[1][1];
@@ -161,33 +169,40 @@ const GameController = (function(){
         document.getElementById('eight').textContent = Gameboard.getBoard()[2][1];
       }
       if (Gameboard.getBoard()[2][2] !== ""){
+        document.getElementById('nine').textContent = Gameboard.getBoard()[2][2];
       }
     }
 
     function playRound(event){
         getBoardCell(event.target.id);
-        // Update Gameboard.
         addToken(activePlayerMoveRow,activePlayerMoveColumn,getActivePlayer());
-        // Show updated Gameboard.
-        updateBoard();
-        console.log(Gameboard.getBoard());
-        // Check for winner.
-        ifWinner(getOrSetPlayer(1,"get"),getOrSetPlayer(2,"get"));
-        changeActivePlayer();
-        document.getElementById('current-player').textContent = getActivePlayer().name;
+        if (goToNextTurn === true){
+            updateBoard();
+            console.log(Gameboard.getBoard());
+            ifWinner(getOrSetPlayer(1,"get"),getOrSetPlayer(2,"get"));
+            if (ifWon === false){
+                if(Gameboard.getBoard().toString().length === 17){
+                    document.getElementById('whose-turn-id').textContent=`You tied! Good game.`;
+                } else{
+                changeActivePlayer();
+                document.getElementById('current-player').textContent = getActivePlayer().name;
+                }
+            }
+        };
     }
 
     return {getIfWon,getOrSetPlayer,ifWinner,playRound};
 })();
 
-
-
-// while (GameController.getIfWon() === false) {
-//     GameController.playRound();
-// }
-
-
 const popUp = document.getElementById('overlay');
+const enterNamesButton = document.getElementById('enter-names');
+
+enterNamesButton.addEventListener("click", function(event) {
+    event.preventDefault();
+    popUp.style.display = "block";
+}
+);
+
 const submitButton = document.getElementById('form-submit');
 
 submitButton.addEventListener("click", function(event) {
@@ -195,19 +210,35 @@ submitButton.addEventListener("click", function(event) {
         const p1Name = document.getElementById('player1-name').value;
         const p2Name = document.getElementById('player2-name').value;
 
-       if (p1Name) { // Validate that the fields are not empty
+       if (p1Name) { 
         GameController.getOrSetPlayer(1,"set",{name: p1Name});
         document.getElementById('p1-nametag').textContent = GameController.getOrSetPlayer(1,"get").name;
         document.getElementById('current-player').textContent = GameController.getOrSetPlayer(1,"get").name;
 
     }
 
-    if (p2Name) { // Validate that the fields are not empty
+    if (p2Name) { 
         GameController.getOrSetPlayer(2,"set",{name: p2Name});
         document.getElementById('p2-nametag').textContent = GameController.getOrSetPlayer(2,"get").name;
     } 
     popUp.style.display = "none";
     }    
+);
+
+const newGameButton = document.getElementById('new-game');
+newGameButton.addEventListener("click", function(event) {
+    event.preventDefault();
+    Gameboard.setBoard();
+    document.getElementById('one').textContent = "";
+    document.getElementById('two').textContent = "";
+    document.getElementById('three').textContent = "";
+    document.getElementById('four').textContent = "";
+    document.getElementById('five').textContent = "";
+    document.getElementById('six').textContent = "";
+    document.getElementById('seven').textContent = "";
+    document.getElementById('eight').textContent = "";
+    document.getElementById('nine').textContent = "";
+}
 );
 
 const boardButtons = document.querySelectorAll('.board-btn');
